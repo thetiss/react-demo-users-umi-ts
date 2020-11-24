@@ -13,6 +13,7 @@ const errorHandler = function (error: any) {
 }
 const extendRequest = extend({errorHandler});
 
+// 获取用户列表
 export const getUserList = () => {
     return extendRequest('/use/users')
         .then(response => response.json())
