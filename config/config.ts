@@ -11,6 +11,9 @@ export default defineConfig({
       immer: true, // 表示是否启用 immer 以方便修改 reducer。
       hmr: false, // 表示是否启用 dva model 的热更新。
     },
+    antd: {
+      dark: false,
+    },
     proxy,
     routes,
   });
