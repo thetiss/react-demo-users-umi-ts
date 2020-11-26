@@ -1,5 +1,6 @@
 import * as userService from './service'
 import { SingleUserType, UserModelType } from './data.types'
+
 const UserModel: UserModelType = {
     namespace: 'users',
     state: {
@@ -12,7 +13,8 @@ const UserModel: UserModelType = {
     },
     effects: {
         *getUserList(action, { call, put }){
-            const data = yield call(userService.getUserList);
+            const data = yield call(userService.getUserList);            
+            console.log(data)
             data 
             ? yield put({
                 type: 'save',
