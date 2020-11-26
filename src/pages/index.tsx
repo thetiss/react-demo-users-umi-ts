@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { FC } from 'react';
 import styles from './index.less';
 import Protable from '@ant-design/pro-table'
 
-export default () => {
+const UserList: FC = () => {
   return (
     <div>
       <h1 className={styles.title}>Page index</h1>
@@ -10,3 +10,4 @@ export default () => {
     </div>
   );
 }
+export default UserList;

@@ -1,3 +1,4 @@
+import { Effect, Reducer, } from 'umi'
 export interface SingleUserType {
     id: number;
     name: string;
@@ -13,4 +14,15 @@ export interface UserState {
         per_page: number;
         page: number;
     }
+}
+
+export interface UserModelType {
+    namespace: 'users';
+    state: UserState;
+    reducers: {
+        getList: Reducer<UserState>;
+    };
+    effects: {
+        getUserList: Effect;        
+    };
 }

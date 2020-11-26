@@ -1,7 +1,6 @@
-import { Model } from 'dva';
 import * as userService from './service'
-import { SingleUserType, UserState} from './data.types'
-export default {
+import { SingleUserType, UserModelType } from './data.types'
+const UserModel: UserModelType = {
     namespace: 'users',
     state: {
         data: [],
@@ -26,8 +25,9 @@ export default {
         },
     },
     reducers: {
-        save(state, action: any){
+        getList(state, action){
             return action.payload;
         }
     }
-} as Model;
+} 
+export default UserModel;
