@@ -26,3 +26,12 @@ export interface UserModelType {
         getUserList: Effect;        
     };
 }
+export interface TableListParams {
+    id?: number;    
+    page?: number;
+    per_page?: number;
+    pageSize?: number;
+    currentPage?: number;
+    filter?: { [key: string]: any[] };
+    sorter?: { [key: string]: any };
+}

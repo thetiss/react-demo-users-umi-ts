@@ -1,5 +1,5 @@
 import * as userService from './service'
-import { SingleUserType, UserModelType } from './data.types'
+import { SingleUserType, UserModelType } from './data'
 
 const UserModel: UserModelType = {
     namespace: 'users',
@@ -13,7 +13,7 @@ const UserModel: UserModelType = {
     },
     effects: {
         *getUserList(action, { call, put }){
-            const data = yield call(userService.getUserList);            
+            const data = yield call(userService.queryUsers);            
             console.log(data)
             data 
             ? yield put({

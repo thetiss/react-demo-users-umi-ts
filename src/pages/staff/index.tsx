@@ -4,11 +4,13 @@
  * @Last Modified by: hiyan
  * @Last Modified time: 2020-11-26 19:02:07
  */
-import React, { useEffect, useState, FC} from 'react'
+import React, { useEffect, useState, FC, useRef} from 'react'
 import { Dispatch, connect } from 'umi'
-import { message, Popconfirm } from 'antd'
-import Protable from '@ant-design/pro-table'
-import { SingleUserType, UserState } from './data.types'
+import { message,  Popconfirm } from 'antd'
+import PageContainer from '@ant-design/pro-layout'
+import Protable, { ActionType, ProColumns } from '@ant-design/pro-table'
+import * as UserService from './service'
+import { SingleUserType, UserState } from './data'
 
 // import styles from './'
 const onEditUser = ( user: SingleUserType) => {
@@ -17,28 +19,63 @@ const onEditUser = ( user: SingleUserType) => {
 const handleDeleteUser = ( id: number) => {
     
 };
-const columns = [
-    {
-      dataIndex: 'index',
-      valueType: 'indexBorder',
-      width: 48,
-    },
+
+const namespace = 'users';
+const mapStateToProps = (users: UserState) => {
+    return{
+        users: users,
+    }
+}
+const mapDispatchToProps = (dispatch: Dispatch) => {
+    return{
+        fetchUserList: () => {
+            dispatch({
+                type: '${namespace}/fetch'
+            })
+        }
+    }
+}  
+const UserList: FC = () => {
+  const [createModalVisible,setCreateModalVisible] = useState<boolean>(false);
+  const [updateModalVisible,setUpdateModalVisible] = useState<boolean>(false);
+  const actionRef = useRef<ActionType>();
+  const columns: ProColumns<SingleUserType>[] = [
     {
       title: '用户ID',
       dataIndex: 'id',
-      valueType: 'string',
+      valueType: 'digit',
+      key: 'id',
     },
     {
       title: '用户名',
       dataIndex: 'name',
-      valueType: 'string',
+      valueType: 'text',
+      key: 'name',
+    },
+    {
+      title: '邮箱',
+      dataIndex: 'email',
+      valueType: 'text',
+      key: 'email',
     },
     {
       title: '创建时间',
-      key: 'since',
       dataIndex: 'create_time',
       valueType: 'date',
+      key: 'create_time',
+    },    
+    {
+      title: '修改时间',
+      dataIndex: 'update_time',
+      valueType: 'date',
+      key: 'update_time',
     },
+    {
+      title: '状态',
+      dataIndex: 'status',
+      valueType: 'digit',
+      key: 'status',
+    },    
     {
       title: '操作',
       valueType: 'option',
@@ -60,28 +97,16 @@ const columns = [
       ],
     },
   ]
-const namespace = 'users';
-const mapStateToProps = (users: UserState) => {
-    return{
-        users: users,
-    }
-}
-const mapDispatchToProps = (dispatch: Dispatch) => {
-    return{
-        fetchUserList: () => {
-            dispatch({
-                type: '${namespace}/fetch'
-            })
-        }
-    }
-}  
-const UserList = () => {
 
-    return <div>
-        <h1>Staff</h1>
-        <Protable />
-
-    </div>
+  return (
+    <PageContainer>
+      <Protable<SingleUserType> 
+        headerTitle="User List"
+        columns={columns}
+        request={(params, sorter, filter) => UserService.queryUsers({ ...params, sorter, filter})}
+      />
+    </PageContainer>
+  )
 
 }
 export default UserList;

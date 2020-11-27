@@ -1,10 +1,12 @@
 import { extend } from 'umi-request'
 import { message } from 'antd'
-
+import { TableListParams } from './data'
 const errorHandler = function (error: any) {
     if(error.response){
+        console.log(error.response);
         if(error.response.status > 400){
-            message.error(error.data.message)
+            console.log(error.data)
+            message.error(error.data.message?error.data.message:error.data)
         }else{
             message.error('Network Error')
         }
@@ -14,11 +16,8 @@ const errorHandler = function (error: any) {
 const extendRequest = extend({errorHandler});
 
 // 获取用户列表
-export const getUserList = () => {
-    return extendRequest('/use/users')
-        .then(response => response.json())
-        .catch(error => {
-            console.log(error);
-            message.error(error);
-        })
+export const queryUsers = async(params?: TableListParams) => {
+    return extendRequest('/use/users/', {
+        params
+    })
 }
