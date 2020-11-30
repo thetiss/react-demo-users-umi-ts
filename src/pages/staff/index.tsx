@@ -2,25 +2,22 @@
  * @Author: hiyan 
  * @Date: 2020-11-20 18:09:49 
  * @Last Modified by: hiyan
- * @Last Modified time: 2020-11-26 19:02:07
+ * @Last Modified time: 2020-11-30 17:21:32
  */
 import React, { useEffect, useState, FC, useRef} from 'react'
 import { Dispatch, connect } from 'umi'
-import { message,  Popconfirm } from 'antd'
+import { message, Button, Tag, Divider, Popconfirm } from 'antd'
+import { PlusOutlined } from '@ant-design/icons'
 import PageContainer from '@ant-design/pro-layout'
 import Protable, { ActionType, ProColumns } from '@ant-design/pro-table'
 import * as UserService from './service'
-import { SingleUserType, UserState } from './data'
+import { SingleUserType, UserState, FormValueType } from './data'
+import CreateOrUpdateForm from './components/CreateForm'
 
 // import styles from './'
-const onEditUser = ( user: SingleUserType) => {
-        
-};
-const handleDeleteUser = ( id: number) => {
-    
-};
 
 const namespace = 'users';
+const subTitleForUsers = '用户';
 const mapStateToProps = (users: UserState) => {
     return{
         users: users,
@@ -36,9 +33,51 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
     }
 }  
 const UserList: FC = () => {
-  const [createModalVisible,setCreateModalVisible] = useState<boolean>(false);
-  const [updateModalVisible,setUpdateModalVisible] = useState<boolean>(false);
+  const [modalVisible,setModalVisible] = useState<boolean>(false);
+  const [editRecord,setEditRecord] = useState<SingleUserType | undefined>(undefined);
   const actionRef = useRef<ActionType>();
+ 
+  const handleCancle = () => {
+    setModalVisible(false);
+  }
+  const handleAddUser = () => {
+    setModalVisible(true);
+    setEditRecord(undefined);
+  }
+  
+  const handleEditUser = (user: SingleUserType)　=> {
+    setModalVisible(true);
+    console.log("From single user record",user);
+    user?setEditRecord(user):setEditRecord(undefined);   
+  }
+
+  const handleDeleteUser = (id: number) => {
+  };
+
+  const onFinish = async (values: FormValueType) => {
+    let id = 0;
+    editRecord ? id = editRecord.id : id = 0;
+    let serviceFunc;
+    if (id) {
+      serviceFunc = UserService.editUser;
+    } else {
+      serviceFunc = UserService.addUser;
+    }
+    const result = await serviceFunc({ id, values }); 
+    let serviceResultMsg = "";
+    if( result ) {
+      setModalVisible(false);
+      serviceResultMsg = `${id===0 ? 'Add' : 'Edit'} Successfuly!`;
+      message.success(serviceResultMsg);
+      actionRef.current?.reload();
+    } else {
+      serviceResultMsg = `${id===0 ? 'Add' : 'Edit'} Failed!`;
+      message.error(serviceResultMsg);      
+    }
+    console.log("http response",result);
+  }
+
+
   const columns: ProColumns<SingleUserType>[] = [
     {
       title: '用户ID',
@@ -61,7 +100,7 @@ const UserList: FC = () => {
     {
       title: '创建时间',
       dataIndex: 'create_time',
-      valueType: 'date',
+      valueType: 'text',
       key: 'create_time',
     },    
     {
@@ -73,26 +112,32 @@ const UserList: FC = () => {
     {
       title: '状态',
       dataIndex: 'status',
-      valueType: 'digit',
+      valueType: 'select',
       key: 'status',
+      valueEnum: {
+        0: { text: '未知', status: 'Processing'},
+        1: { text: '在线', status: 'Success'},
+        2: { text: '下线', status: 'Default'},
+        3: { text: '锁定', status: 'Warning'}
+      },
+      render: (text: any) => (<Tag>{text}</Tag>)
     },    
     {
       title: '操作',
       valueType: 'option',
       render: (text: any, row: SingleUserType) => [
-          <a  key="edit" onClick={()=>onEditUser(row)}>
+          <a  key="editUser" onClick={()=>handleEditUser(row)}>
             编辑
           </a>,
+          <a href="#" key='configUser'>配置</a>,
           <Popconfirm 
             title={"确定删除?"+row.id}
-            onConfirm={() => {  
-                                handleDeleteUser(row.id);
-                              }}
+            onConfirm={() => handleDeleteUser(row.id)}
             okText="确定"
             cancelText="取消"
             key="delete"
           >
-            <a href="#" >删除{row.id}</a>
+            <a href="#" key='deleteUser'>删除{row.id}</a>
         </Popconfirm>,         
       ],
     },
@@ -101,9 +146,24 @@ const UserList: FC = () => {
   return (
     <PageContainer>
       <Protable<SingleUserType> 
-        headerTitle="User List"
+        //headerTitle="在线用户列表"
+        headerTitle={'在线'+subTitleForUsers+'列表'}
         columns={columns}
         request={(params, sorter, filter) => UserService.queryUsers({ ...params, sorter, filter})}
+        actionRef={actionRef}
+        search={false} // hide search bar
+        toolBarRender={() => [
+          <Button type='primary' onClick={() => handleAddUser()} key='addUser'>
+            <PlusOutlined />新建{subTitleForUsers}
+          </Button>
+        ]}
+      />
+
+      <CreateOrUpdateForm
+          visible={modalVisible}          
+          onFinish={onFinish}
+          onCancle={handleCancle}
+          editRecord={editRecord}
       />
     </PageContainer>
   )

@@ -1,6 +1,6 @@
 import { extend } from 'umi-request'
 import { message } from 'antd'
-import { TableListParams } from './data'
+import { TableListParams, SingleUserType, FormValueType } from './data'
 const errorHandler = function (error: any) {
     if(error.response){
         console.log(error.response);
@@ -20,4 +20,27 @@ export const queryUsers = async(params?: TableListParams) => {
     return extendRequest('/use/users/', {
         params
     })
+}
+
+// 新增用户
+export const addUser = async ({ values } : { values: FormValueType }) => {
+    console.log("to service",values);
+    return extendRequest('/use/users',{
+        method: 'post',
+        data: values,
+    })
+}
+
+export const editUser = async ({ id, values } : { id: number , values: FormValueType }) => {
+    console.log("to edit service",id,values);
+    return extendRequest(`/use/users/${id}`,{
+        method: 'put',
+        data: values,
+    })
+        .then(response => {
+            return true;
+        })
+        .catch(error=>{
+            console.log(error);
+        })
 }

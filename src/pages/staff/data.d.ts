@@ -35,3 +35,15 @@ export interface TableListParams {
     filter?: { [key: string]: any[] };
     sorter?: { [key: string]: any };
 }
+// Modal组件类Form类型
+export interface FormValueType {
+    [name: string]: any
+}
+// Modal组件类的props
+export interface FormPropsType {
+    visible: boolean;
+    editRecord?: SingleUserType;
+    onFinish: (value: FormValueType) => void;
+    onCancle: () => void;
+    
+}
