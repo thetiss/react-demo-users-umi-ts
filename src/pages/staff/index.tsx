@@ -2,7 +2,7 @@
  * @Author: hiyan 
  * @Date: 2020-11-20 18:09:49 
  * @Last Modified by: hiyan
- * @Last Modified time: 2020-11-30 17:21:32
+ * @Last Modified time: 2020-12-01 18:25:56
  */
 import React, { useEffect, useState, FC, useRef} from 'react'
 import { Dispatch, connect } from 'umi'
@@ -48,10 +48,17 @@ const UserList: FC = () => {
   const handleEditUser = (user: SingleUserType)　=> {
     setModalVisible(true);
     console.log("From single user record",user);
-    user?setEditRecord(user):setEditRecord(undefined);   
+    user ? setEditRecord(user) : setEditRecord(undefined);   
   }
 
-  const handleDeleteUser = (id: number) => {
+  const handleDeleteUser = async (id: number) => {
+    const result = await UserService.deleteUser({id});
+     if( result ) {
+       message.success('Delete Successfully!');
+       actionRef.current?.reload();
+     } else {
+      message.error('Delete Failed!');
+     }
   };
 
   const onFinish = async (values: FormValueType) => {
@@ -146,13 +153,12 @@ const UserList: FC = () => {
   return (
     <PageContainer>
       <Protable<SingleUserType> 
-        //headerTitle="在线用户列表"
         headerTitle={'在线'+subTitleForUsers+'列表'}
         columns={columns}
         request={(params, sorter, filter) => UserService.queryUsers({ ...params, sorter, filter})}
         actionRef={actionRef}
         search={false} // hide search bar
-        toolBarRender={() => [
+        toolBarRender={ () => [
           <Button type='primary' onClick={() => handleAddUser()} key='addUser'>
             <PlusOutlined />新建{subTitleForUsers}
           </Button>

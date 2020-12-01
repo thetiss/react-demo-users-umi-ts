@@ -15,24 +15,19 @@ const errorHandler = function (error: any) {
 }
 const extendRequest = extend({errorHandler});
 
-// 获取用户列表
 export const queryUsers = async(params?: TableListParams) => {
     return extendRequest('/use/users/', {
         params
     })
 }
 
-// 新增用户
 export const addUser = async ({ values } : { values: FormValueType }) => {
-    console.log("to service",values);
     return extendRequest('/use/users',{
         method: 'post',
         data: values,
     })
 }
-
 export const editUser = async ({ id, values } : { id: number , values: FormValueType }) => {
-    console.log("to edit service",id,values);
     return extendRequest(`/use/users/${id}`,{
         method: 'put',
         data: values,
@@ -40,7 +35,18 @@ export const editUser = async ({ id, values } : { id: number , values: FormValue
         .then(response => {
             return true;
         })
-        .catch(error=>{
+        .catch(error => {
             console.log(error);
+        })
+}
+export const deleteUser = async ({ id } : { id: number }) => {
+    return extendRequest(`/use/users/${id}`,{
+        method: 'delete',
+    })
+        .then(response => {
+            return true;
+        })
+        .catch(error => {
+            console.log(error)
         })
 }

@@ -2,7 +2,7 @@
  * @Author: hiyan 
  * @Date: 2020-11-30 10:49:06 
  * @Last Modified by: hiyan
- * @Last Modified time: 2020-11-30 15:55:36
+ * @Last Modified time: 2020-11-30 17:58:54
  */
 import React, { useEffect, FC } from 'react'
 import { Modal, Form, Input, Switch, DatePicker, message } from 'antd'
@@ -39,8 +39,6 @@ const layout = {
                 form.validateFields() // form instance的API方法之一：触发表单验证	
                     .then((values) => {                            
                         //form.resetFields(); // 之一：重置一组字段到 initialValues
-                        console.log("Raise info from Form")
-                        console.log(values);
                         onFinish(values);
                         form.resetFields();
                     })
