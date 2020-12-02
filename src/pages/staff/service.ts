@@ -15,9 +15,17 @@ const errorHandler = function (error: any) {
 }
 const extendRequest = extend({errorHandler});
 
+// export const queryUsers = async(params?: TableListParams) => {
+//     return extendRequest('/use/users/', {
+//         params
+//     })
+// }
+
 export const queryUsers = async(params?: TableListParams) => {
+    console.log('params is； ',params);
+    //const formatBackendParams = { ...params };
     return extendRequest('/use/users/', {
-        params
+        params,
     })
 }
 
@@ -26,6 +34,13 @@ export const addUser = async ({ values } : { values: FormValueType }) => {
         method: 'post',
         data: values,
     })
+        .then(response => {
+            return true;
+        })
+        .catch(error => {
+            console.log(error);
+            return false;            
+        })
 }
 export const editUser = async ({ id, values } : { id: number , values: FormValueType }) => {
     return extendRequest(`/use/users/${id}`,{
@@ -37,6 +52,7 @@ export const editUser = async ({ id, values } : { id: number , values: FormValue
         })
         .catch(error => {
             console.log(error);
+            return false;
         })
 }
 export const deleteUser = async ({ id } : { id: number }) => {
@@ -47,6 +63,7 @@ export const deleteUser = async ({ id } : { id: number }) => {
             return true;
         })
         .catch(error => {
-            console.log(error)
+            console.log(error);
+            return false;
         })
 }

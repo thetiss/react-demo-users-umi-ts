@@ -6,7 +6,7 @@
  */
 import React, { useEffect, useState, FC, useRef} from 'react'
 import { Dispatch, connect } from 'umi'
-import { message, Button, Tag, Divider, Popconfirm } from 'antd'
+import { message, Button, Tag, Divider, Popconfirm, Pagination } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
 import PageContainer from '@ant-design/pro-layout'
 import Protable, { ActionType, ProColumns } from '@ant-design/pro-table'
@@ -18,6 +18,7 @@ import CreateOrUpdateForm from './components/CreateForm'
 
 const namespace = 'users';
 const subTitleForUsers = '用户';
+
 const mapStateToProps = (users: UserState) => {
     return{
         users: users,
@@ -81,11 +82,17 @@ const UserList: FC = () => {
       serviceResultMsg = `${id===0 ? 'Add' : 'Edit'} Failed!`;
       message.error(serviceResultMsg);      
     }
-    console.log("http response",result);
   }
-
-
-  const columns: ProColumns<SingleUserType>[] = [
+  const requestHandler = async ({ }) => {
+      const result = await UserService.queryUsers({...params, sorter, filter});
+      return {
+        data: result.data,
+        success: true,
+        total: result.meta.total
+      }
+  }
+  
+ const columns: ProColumns<SingleUserType>[] = [
     {
       title: '用户ID',
       dataIndex: 'id',
@@ -155,7 +162,16 @@ const UserList: FC = () => {
       <Protable<SingleUserType> 
         headerTitle={'在线'+subTitleForUsers+'列表'}
         columns={columns}
-        request={(params, sorter, filter) => UserService.queryUsers({ ...params, sorter, filter})}
+        request={async (params, sorter, filter) => {
+         const result = await UserService.queryUsers({ ...params,page: params.current,pageSize: params.pageSize, sorter, filter});
+         return {
+           data: result.data,
+           total: result.meta.total,
+           success: true,
+           pageSize: result.meta.per_page,
+           current: result.meta.page          
+         }
+        }}
         actionRef={actionRef}
         search={false} // hide search bar
         toolBarRender={ () => [
@@ -163,8 +179,9 @@ const UserList: FC = () => {
             <PlusOutlined />新建{subTitleForUsers}
           </Button>
         ]}
+        // pagination={false}
       />
-
+      {/* <Pagination /> */}
       <CreateOrUpdateForm
           visible={modalVisible}          
           onFinish={onFinish}
