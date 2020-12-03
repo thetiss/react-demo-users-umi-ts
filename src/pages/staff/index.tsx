@@ -83,14 +83,6 @@ const UserList: FC = () => {
       message.error(serviceResultMsg);      
     }
   }
-  const requestHandler = async ({ }) => {
-      const result = await UserService.queryUsers({...params, sorter, filter});
-      return {
-        data: result.data,
-        success: true,
-        total: result.meta.total
-      }
-  }
   
  const columns: ProColumns<SingleUserType>[] = [
     {
@@ -181,7 +173,13 @@ const UserList: FC = () => {
         ]}
         // pagination={false}
       />
-      {/* <Pagination /> */}
+      <Pagination
+        total={15}
+        // showSizeChanger
+        // showQuickJumper
+        showTotal={total => `Total ${total} items`}
+      />
+
       <CreateOrUpdateForm
           visible={modalVisible}          
           onFinish={onFinish}
