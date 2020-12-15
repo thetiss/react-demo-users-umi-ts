@@ -1,4 +1,5 @@
-import { Effect, Reducer, } from 'umi'
+import { Effect, Reducer, Dispatch, Loading, } from 'umi'
+// User所有属性
 export interface SingleUserType {
     id: number;
     name: string;
@@ -7,31 +8,30 @@ export interface SingleUserType {
     update_time: string;
     status: number;
 }
+// 后端接口返回查询列表
 export interface UserState {
     data: SingleUserType[];
-    meta: {
+    meta?: {
         total: number;
         per_page: number;
         page: number;
     }
 }
-
+// 定义类来约束Model写法
 export interface UserModelType {
     namespace: 'users';
     state: UserState;
     reducers: {
-        getList: Reducer<UserState>;
+        saveCurrentUsers: Reducer<UserState>;
     };
     effects: {
         getUserList: Effect;        
     };
 }
-export interface TableListParams {
+export interface QueryUsersApiWithParams { // 与后端接口要交互，
     id?: number;    
     page?: number;
     per_page?: number;
-    pageSize?: number;
-    currentPage?: number;
     filter?: { [key: string]: any[] };
     sorter?: { [key: string]: any };
 }
@@ -44,6 +44,17 @@ export interface FormPropsType {
     visible: boolean;
     editRecord?: SingleUserType;
     onFinish: (value: FormValueType) => void;
-    onCancle: () => void;
-    
+    onCancle: () => void;    
+}
+
+// UserListPage所有包含的属性
+export interface UserListPage {
+    users: UserState;
+    dispatch: Dispatch;
+    userListLoading: boolean;
+}
+
+export interface UserListMapStateToProps {
+    users: UserState;
+    //loading: Loading;
 }

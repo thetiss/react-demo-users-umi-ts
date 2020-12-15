@@ -1,6 +1,6 @@
 import { extend } from 'umi-request'
 import { message } from 'antd'
-import { TableListParams, SingleUserType, FormValueType } from './data'
+import { QueryUsersApiWithParams, SingleUserType, FormValueType } from './data'
 const errorHandler = function (error: any) {
     if(error.response){
         console.log(error.response);
@@ -15,16 +15,9 @@ const errorHandler = function (error: any) {
 }
 const extendRequest = extend({errorHandler});
 
-// export const queryUsers = async(params?: TableListParams) => {
-//     return extendRequest('/use/users/', {
-//         params
-//     })
-// }
-
-export const queryUsers = async(params?: TableListParams) => {
+export const queryUsers = async (params?: QueryUsersApiWithParams) => { // params参数可选,若不带，则默认后端向前端返回users?page=1&per_page=10
     console.log('params is； ',params);
-    //const formatBackendParams = { ...params };
-    return extendRequest('/use/users/', {
+    return extendRequest('/use/users', {
         params,
     })
 }

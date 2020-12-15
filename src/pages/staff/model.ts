@@ -13,22 +13,26 @@ const UserModel: UserModelType = {
     },
     effects: {
         *getUserList(action, { call, put }){
-            const data = yield call(userService.queryUsers);            
-            console.log(data)
-            data 
+            const { page, pageSize } = action.payload;
+            const response = yield call(userService.queryUsers,page,pageSize);            
+            console.log("yeild call result： ",response);
+            response 
             ? yield put({
-                type: 'save',
-                payload: data
+                type: 'saveCurrentUsers',
+                payload: response
             })
             : yield put({
-                type: 'save',
+                type: 'saveCurrentUsers',
                 payload: []
             })
         },
     },
     reducers: {
-        getList(state, action){
-            return action.payload;
+        saveCurrentUsers(state, action) {           
+            return {
+                ...state,
+                data: action.payload || [],
+            };
         }
     }
 } 
