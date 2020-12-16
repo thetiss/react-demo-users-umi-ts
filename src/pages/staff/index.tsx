@@ -2,7 +2,7 @@
  * @Author: hiyan 
  * @Date: 2020-11-20 18:09:49 
  * @Last Modified by: hiyan
- * @Last Modified time: 2020-12-01 18:25:56
+ * @Last Modified time: 2020-12-16 14:31:45
  */
 import React, { useEffect, useState, FC, useRef} from 'react'
 import { Dispatch, connect, Loading } from 'umi'
@@ -25,11 +25,30 @@ const UserList: FC<UserListPage> = ({
 }) => {
   const [modalVisible,setModalVisible] = useState<boolean>(false);
   const [editRecord,setEditRecord] = useState<SingleUserType | undefined>(undefined);
-  const [ totals, setTotals ] = useState<number | undefined>(0);
-  const [ pageSize, setPageSize ] = useState<number | undefined>(0);
-  const [ currentPage, setCurrentPage ] = useState<number | undefined>(1);
   const actionRef = useRef<ActionType>();
+  const [total, setTotal] = useState(0);
+  const [current, setCurrent] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
  
+  const requestHandler = async (params: any, sorter: any, filter: any) => { 
+    console.log("requestHandler here");
+    console.log(" |parmas",params);   
+    const result = await UserService.queryUsers({ page: params.current,per_page: params.pageSize, sorter, filter});
+    console.log(" |result",result);
+    if (result) {
+     return {
+       data: result.data,
+       total: result.meta.total,
+       success: true,        
+     }
+    } else {
+       return {
+         data: [],
+       }
+    }
+   };
+   
   const handleCancle = () => {
     setModalVisible(false);
   }
@@ -53,10 +72,13 @@ const UserList: FC<UserListPage> = ({
       message.error('Delete Failed!');
      }
   };
-
-  const pageSizeChangeHandler = () => {
-
-  };
+  
+  const paginationProps:TablePaginationConfig = {
+      total: total,
+      defaultPageSize: 5,
+      pageSize: pageSize,
+      showSizeChanger: true,
+    }
 
   const pageChangeHandler = (page: number, pageSize?: number) => {
     dispatch({
@@ -160,46 +182,27 @@ const UserList: FC<UserListPage> = ({
       <Protable<SingleUserType> 
         headerTitle={'在线'+subTitleForUsers+'列表'}
         columns={columns}
-        request={async (params, sorter, filter) => {         
-         console.log("从antd自动获取到的current和pageSize：",params.current,params.pageSize);
-         const result = await UserService.queryUsers({ page: params.current,per_page: params.pageSize, sorter, filter});
-         if (result) {
-           setTotals(result.meta.total);
-           setCurrentPage(params.current);
-           setPageSize(params.pageSize);
-          return {
-            data: result.data,
-            total: result.meta.total,
-            success: true,
-            pageSize: result.meta.per_page,
-            current: result.meta.page          
-          }
-         } else {
-            return {
-              data: [],
-            }
-         }
-        }}
+        request={requestHandler}
         actionRef={actionRef}
         loading={userListLoading}
         search={false} // hide search bar
         toolBarRender={ () => [
-          <Button type='primary' onClick={() => handleAddUser()} key='addUser'>
+          <Button key='addUser' type='primary' onClick={() => handleAddUser()} >
             <PlusOutlined />新建{subTitleForUsers}
           </Button>
         ]}
         // pagination = { paginationProps }
-        pagination= {false}
+        //pagination= {false}
       />
-     { users.meta && <Pagination        
+     {/* { users.meta && <Pagination        
                         total={users.meta.total}         
                         current={users.meta.page}
                         pageSize={users.meta.per_page}
                         onChange={pageChangeHandler}
-                        onShowSizeChange={pageSizeChangeHandler}                         
+                        onShowSizeChange={pageChangeHandler}                         
                         showSizeChanger 
                         showTotal={total => `Total ${total} items`}
-                      /> }
+                      /> } */}
       <CreateOrUpdateForm
           visible={modalVisible}          
           onFinish={onFinish}
