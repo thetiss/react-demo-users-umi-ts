@@ -13,9 +13,11 @@ const UserModel: UserModelType = {
     },
     effects: {
         *getUserList(action, { call, put }){
-            console.log('effect here');            
-            const { page, pageSize } = action.payload;
-            const response = yield call(userService.queryUsers,page,pageSize);            
+            console.log('effect here');
+            console.log(' |action.payload',action.payload);                        
+            const { page, per_page } = action.payload;
+            console.log(' |action.payload.per_page',per_page);            
+            const response = yield call(userService.queryUsers,{page,per_page});            
             console.log("yeild call result： ",response);
             response 
             ? yield put({
@@ -31,10 +33,12 @@ const UserModel: UserModelType = {
     reducers: {
         saveCurrentUsers(state, action) {    
             console.log('reducer here');
-                   
+            console.log(" |state",state);
+            console.log(" |action",action);          
             return {
                 ...state,
-                data: action.payload || [],
+                data: action.payload.data || [],
+                meta: action.payload.meta || {},
             };
         }
     }

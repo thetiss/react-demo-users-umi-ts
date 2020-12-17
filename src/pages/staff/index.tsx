@@ -26,28 +26,36 @@ const UserList: FC<UserListPage> = ({
   const [modalVisible,setModalVisible] = useState<boolean>(false);
   const [editRecord,setEditRecord] = useState<SingleUserType | undefined>(undefined);
   const actionRef = useRef<ActionType>();
-  const [total, setTotal] = useState(0);
-  const [current, setCurrent] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  
+  const renderTableList = ()=>{
+    dispatch({
+      type:`${namespace}/getUserList`,
+      payload:{
+        page: 1,
+        per_page: 10,
+      }
+    })
+  };
+  useEffect(() => renderTableList(),[]) //页面加载时，加载从服务端获取到的数据
 
  
-  const requestHandler = async (params: any, sorter: any, filter: any) => { 
-    console.log("requestHandler here");
-    console.log(" |parmas",params);   
-    const result = await UserService.queryUsers({ page: params.current,per_page: params.pageSize, sorter, filter});
-    console.log(" |result",result);
-    if (result) {
-     return {
-       data: result.data,
-       total: result.meta.total,
-       success: true,        
-     }
-    } else {
-       return {
-         data: [],
-       }
-    }
-   };
+  // const requestHandler = async (params: any, sorter: any, filter: any) => { 
+  //   console.log("requestHandler here");
+  //   console.log(" |parmas",params);   
+  //   const result = await UserService.queryUsers({ page: params.current,per_page: params.pageSize, sorter, filter});
+  //   console.log(" |result",result);
+  //   if (result) {
+  //    return {
+  //      data: result.data,
+  //      total: result.meta.total,
+  //      success: true,        
+  //    }
+  //   } else {
+  //      return {
+  //        data: [],
+  //      }
+  //   }
+  //  };
    
   const handleCancle = () => {
     setModalVisible(false);
@@ -73,19 +81,30 @@ const UserList: FC<UserListPage> = ({
      }
   };
   
-  const paginationProps:TablePaginationConfig = {
-      total: total,
-      defaultPageSize: 5,
-      pageSize: pageSize,
-      showSizeChanger: true,
-    }
+  // const paginationProps:TablePaginationConfig = {
+  //     total: total,
+  //     defaultPageSize: 5,
+  //     pageSize: pageSize,
+  //     showSizeChanger: true,
+  //   }
 
   const pageChangeHandler = (page: number, pageSize?: number) => {
+    console.log("page,pagesize",page,pageSize);
     dispatch({
-      type: `${namespace}/saveCurrentUsers`,
+      type: `${namespace}/getUserList`,
       payload: {
-        page: users.meta?.page,
-        pageSize: users.meta?.per_page,
+        page,
+        per_page: pageSize,
+      }
+    })
+  };
+  const pageSizeChangeHandler = (page: number, current?: number) => {
+    console.log("page,current",page,current);
+    dispatch({
+      type: `${namespace}/getUserList`,
+      payload: {
+        page: current,
+        per_page: page,
       }
     })
   };
@@ -182,7 +201,26 @@ const UserList: FC<UserListPage> = ({
       <Protable<SingleUserType> 
         headerTitle={'在线'+subTitleForUsers+'列表'}
         columns={columns}
-        request={requestHandler}
+        //request={requestHandler}
+        request={async (params: any, sorter: any, filter: any) => { 
+          console.log("requestHandler here");
+          console.log(" |parmas",params);   
+          console.log(" |sorter",sorter);   
+          console.log(" |filter",filter);   
+          const result = await UserService.queryUsers({ page: params.current,per_page: params.pageSize, sorter, filter});
+          console.log(" |result",result);
+          if (result) {
+           return {
+             data: result.data,
+             total: result.meta.total,
+             success: true,        
+           }
+          } else {
+             return {
+               data: [],
+             }
+          }
+         }}
         actionRef={actionRef}
         loading={userListLoading}
         search={false} // hide search bar
@@ -192,17 +230,17 @@ const UserList: FC<UserListPage> = ({
           </Button>
         ]}
         // pagination = { paginationProps }
-        //pagination= {false}
+        pagination= {false}
       />
-     {/* { users.meta && <Pagination        
+     { users.meta && <Pagination        
                         total={users.meta.total}         
                         current={users.meta.page}
                         pageSize={users.meta.per_page}
                         onChange={pageChangeHandler}
-                        onShowSizeChange={pageChangeHandler}                         
+                        onShowSizeChange={pageSizeChangeHandler}                         
                         showSizeChanger 
                         showTotal={total => `Total ${total} items`}
-                      /> } */}
+                      /> }
       <CreateOrUpdateForm
           visible={modalVisible}          
           onFinish={onFinish}
